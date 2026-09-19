@@ -1,0 +1,798 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="1ª Feira Tech dos Jovens da Vocação — Visite, avalie e descubra projetos incríveis dos nossos alunos." />
+    <meta property="og:title" content="1ª Feira Tech dos Jovens da Vocação" />
+    <meta property="og:description" content="Visite, avalie e acompanhe os projetos dos alunos da Vocação." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>1ª Feira Tech — Jovens da Vocação</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <!-- Elementos decorativos de fundo -->
+    <div class="deco deco-navy"></div>
+    <div class="deco deco-lime"></div>
+    <div class="deco deco-ring"></div>
+    <div class="deco deco-magenta"></div>
+
+    <main class="app">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="Feira Tech — início">
+          Feira <span>Tech</span>
+          <small>Jovens da Vocação</small>
+        </a>
+        <nav class="topbar-nav">
+          <a class="nav-link" href="/expositor" id="navExpositor">Área do Expositor</a>
+          <a class="nav-link nav-admin" href="/admin" id="navAdmin">Admin</a>
+        </nav>
+      </header>
+
+      <!-- ══════════════════════════════════════════════════════════════ -->
+      <!-- TELA 0: Seleção de Perfil do Visitante                        -->
+      <!-- ══════════════════════════════════════════════════════════════ -->
+      <section id="profileView" class="view" hidden>
+        <!-- Contexto quando o visitante chegou por um QR Code de stand -->
+        <div class="scan-context" id="scanContext" hidden>
+          <span class="scan-context-icon">📍</span>
+          <div>
+            <small>VOCÊ ESCANEOU O STAND</small>
+            <strong id="scanContextStand">—</strong>
+          </div>
+        </div>
+
+        <div class="profile-hero">
+          <p class="eyebrow">CREDENCIAMENTO · LEVA 30 SEGUNDOS</p>
+          <h1>Seu cadastro<br /><span>é só uma vez.</span></h1>
+          <p id="profileIntro">
+            Depois deste passo, cada QR Code lido leva direto para a avaliação — sem cadastro de novo.
+          </p>
+        </div>
+
+        <div class="profile-grid" id="profileGrid">
+          <button class="profile-card" id="profileAluno" data-type="aluno">
+            <span class="profile-icon" aria-hidden="true">🎓</span>
+            <strong>Aluno Vocação</strong>
+            <small>Estudante dos cursos da escola</small>
+          </button>
+
+          <button class="profile-card" id="profileFuncionario" data-type="funcionario">
+            <span class="profile-icon" aria-hidden="true">🏫</span>
+            <strong>Funcionário Vocação</strong>
+            <small>Equipe da instituição</small>
+          </button>
+
+          <button class="profile-card" id="profileExterno" data-type="visitante_externo">
+            <span class="profile-icon" aria-hidden="true">🌐</span>
+            <strong>Visitante Externo</strong>
+            <small>Convidado, familiar ou amigo</small>
+          </button>
+
+          <button class="profile-card" id="profileEmpresa" data-type="empresa">
+            <span class="profile-icon" aria-hidden="true">💼</span>
+            <strong>Empresa</strong>
+            <small>Parceiro ou recrutador</small>
+          </button>
+        </div>
+
+        <!-- Detalhes do credenciamento (aparece após escolher o perfil) -->
+        <div class="aluno-form" id="checkinForm" hidden>
+          <div class="aluno-form-inner">
+            <p class="eyebrow" id="checkinEyebrow">SEU CREDENCIAMENTO</p>
+            <h2 id="checkinTitle">Quase lá</h2>
+
+            <label for="visitorName">Seu nome <span class="req">*</span></label>
+            <input id="visitorName" type="text" maxlength="80" placeholder="Ex.: Ana Souza" autocomplete="name" />
+
+            <div id="contactFields">
+              <label for="visitorContact" id="contactLabel">Telefone ou e-mail <em>(opcional)</em></label>
+              <input id="visitorContact" type="text" maxlength="120" placeholder="Ex.: (11) 99999-9999 ou ana@email.com" autocomplete="tel" />
+            </div>
+
+            <!-- Apenas para alunos -->
+            <div id="alunoFields" hidden>
+              <label>Quais cursos você faz atualmente? <span class="req">*</span></label>
+              <small class="field-hint">Marque todos — muitos alunos fazem mais de um curso em dias diferentes.</small>
+              <div class="course-pills" id="coursePills">
+                <button type="button" class="course-pill" data-course="webdesign" id="pillWebdesign">🎨 Web Design</button>
+                <button type="button" class="course-pill" data-course="programacao" id="pillProgramacao">💻 Programação</button>
+                <button type="button" class="course-pill" data-course="audiovisual" id="pillAudiovisual">🎬 Audiovisual</button>
+                <button type="button" class="course-pill" data-course="ppt" id="pillPpt">📋 Prep. para o Trabalho</button>
+              </div>
+
+              <label>Qual(is) stand(s) é(são) do seu grupo? <span class="req">*</span></label>
+              <small class="field-hint">⚠️ Marque todos os seus — você não poderá avaliar o stand do próprio grupo.</small>
+              <div class="stand-checklist" id="alunoStandChecklist">
+                <p class="empty-dark">Carregando stands...</p>
+              </div>
+
+              <label for="alunoGrupoManual">Algum grupo seu ainda não tem stand cadastrado? <em>(opcional)</em></label>
+              <input id="alunoGrupoManual" type="text" maxlength="100" placeholder="Ex.: Horta Inteligente" autocomplete="off" />
+            </div>
+
+            <!-- Apenas para funcionários -->
+            <div id="funcionarioFields" hidden>
+              <label for="funcionarioSetor">Departamento ou setor <em>(opcional)</em></label>
+              <input id="funcionarioSetor" type="text" maxlength="120" placeholder="Ex.: Coordenação Pedagógica" autocomplete="off" />
+            </div>
+
+            <!-- Apenas para empresas -->
+            <div id="empresaFields" hidden>
+              <label for="empresaNome">Nome da empresa <em>(opcional)</em></label>
+              <input id="empresaNome" type="text" maxlength="120" placeholder="Ex.: Tech Solutions Ltda." autocomplete="organization" />
+            </div>
+
+            <div class="aluno-form-actions">
+              <button class="btn btn-primary btn-full" id="confirmCheckin">Confirmar e continuar →</button>
+              <button class="btn btn-secondary" id="cancelCheckin">Voltar</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════════════ -->
+      <!-- TELA 1: Home — Lista de Stands e Mural                        -->
+      <!-- ══════════════════════════════════════════════════════════════ -->
+      <section id="homeView" class="view" hidden>
+        <div class="intro">
+          <p class="eyebrow">1ª FEIRA TECH DOS JOVENS DA VOCAÇÃO</p>
+          <h1>Descubra. Participe.<br /><span>Avalie.</span></h1>
+          <p>Escolha como deseja entrar e ajude nossos alunos a transformar ideias em experiências reais.</p>
+        </div>
+
+        <div class="visitor-badge" id="visitorBadge">
+          <span id="badgeProfileLabel">Visitante</span>
+          <button class="text-button" id="changeProfile">Trocar perfil</button>
+        </div>
+
+        <div class="choice-grid">
+          <button class="choice choice-scan" id="scanEntry">
+            <span class="choice-icon">⛶</span>
+            <span>
+              <strong>Escanear QR do stand</strong>
+              <small>Caminho mais rápido: aponte e avalie</small>
+            </span>
+            <b>→</b>
+          </button>
+          <button class="choice choice-visitor" id="visitorEntry">
+            <span class="choice-icon">★</span>
+            <span>
+              <strong>Ver os projetos</strong>
+              <small>Conheça e avalie os stands</small>
+            </span>
+            <b>→</b>
+          </button>
+          <a class="choice choice-passport" href="/passaporte">
+            <span class="choice-icon">✦</span>
+            <span>
+              <strong>Meu passaporte</strong>
+              <small id="passportTeaser">Acompanhe seu progresso na feira</small>
+            </span>
+            <b>→</b>
+          </a>
+          <a class="choice choice-exhibitor" href="/expositor">
+            <span class="choice-icon">▥</span>
+            <span>
+              <strong>Sou expositor</strong>
+              <small>Acompanhe seu stand</small>
+            </span>
+            <b>→</b>
+          </a>
+        </div>
+
+        <!-- Lista de stands -->
+        <section class="stand-browser" id="standBrowser" hidden>
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">PROJETOS DA FEIRA</p>
+              <h2>Qual stand você está visitando?</h2>
+            </div>
+            <button class="text-button" id="closeBrowser">Fechar</button>
+          </div>
+
+          <!-- Filtro por curso -->
+          <div class="course-filter" id="courseFilter">
+            <button class="filter-pill active" data-filter="">Todos</button>
+            <button class="filter-pill" data-filter="webdesign">🎨 Web Design</button>
+            <button class="filter-pill" data-filter="programacao">💻 Programação</button>
+            <button class="filter-pill" data-filter="audiovisual">🎬 Audiovisual</button>
+            <button class="filter-pill" data-filter="ppt">📋 PPT</button>
+          </div>
+
+          <div id="standList" class="stand-list"></div>
+          <p id="emptyStands" class="empty" hidden>Nenhum stand foi cadastrado ainda.</p>
+        </section>
+
+        <!-- Mural público -->
+        <section class="public-wall" id="publicWall">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">VOZES DA FEIRA</p>
+              <h2>Quem visitou, apoiou.</h2>
+            </div>
+            <span class="wall-count" id="wallCount"></span>
+          </div>
+          <div class="wall-grid" id="wallGrid"></div>
+          <p class="empty" id="emptyWall" hidden>Os primeiros apoios aparecerão aqui após a aprovação dos expositores.</p>
+        </section>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════════════ -->
+      <!-- TELA 2: Avaliação do Stand (Visita)                           -->
+      <!-- ══════════════════════════════════════════════════════════════ -->
+      <section id="visitView" class="view" hidden>
+        <a class="back" href="/">← Voltar</a>
+        <div class="visit-panel">
+          <div class="live-pill"><i></i> VISITA EM ANDAMENTO</div>
+          <p class="course-label" id="visitCourse"></p>
+          <h1 id="visitStandName">Carregando...</h1>
+          <div class="timer">
+            <span id="visitTimer">00:00</span>
+            <small>tempo da sua visita</small>
+          </div>
+
+          <!-- Área de avaliação: um toque já registra -->
+          <div id="ratingArea">
+            <p class="rating-question">O que você achou deste projeto?</p>
+            <div class="star-picker" id="starPicker" aria-label="Avaliação de uma a cinco estrelas" role="group">
+              <button data-stars="1" aria-label="1 estrela">★</button>
+              <button data-stars="2" aria-label="2 estrelas">★</button>
+              <button data-stars="3" aria-label="3 estrelas">★</button>
+              <button data-stars="4" aria-label="4 estrelas">★</button>
+              <button data-stars="5" aria-label="5 estrelas">★</button>
+            </div>
+            <p class="one-tap-hint" id="oneTapHint">Toque na estrela: a avaliação é enviada na hora.</p>
+            <button class="btn btn-primary btn-full" id="submitRating" hidden>Enviar avaliação</button>
+          </div>
+
+          <!-- Estado de sucesso pós-avaliação -->
+          <div class="success-state" id="successState" hidden>
+            <span>✓</span>
+            <h2>Obrigado pela visita!</h2>
+            <p>Sua avaliação foi registrada. Agora ajude este projeto a ganhar o mundo.</p>
+
+            <!-- Botões de compartilhamento rápido -->
+            <div class="quick-share" id="quickShare">
+              <p class="share-label">Compartilhe agora:</p>
+              <div class="share-buttons">
+                <a class="share-btn share-whatsapp" id="shareWhatsapp" target="_blank" rel="noopener noreferrer">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                  WhatsApp
+                </a>
+                <a class="share-btn share-twitter" id="shareTwitter" target="_blank" rel="noopener noreferrer">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.741l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                  Twitter/X
+                </a>
+                <a class="share-btn share-facebook" id="shareFacebook" target="_blank" rel="noopener noreferrer">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                  Facebook
+                </a>
+              </div>
+              <button class="btn btn-primary btn-full" id="openSocialStudio">
+                📸 Postar minha foto nas redes
+              </button>
+              <button class="btn btn-dark btn-full" id="scanNextStand">
+                ⛶ Escanear o próximo stand
+              </button>
+              <a class="btn btn-secondary btn-full" href="/passaporte" id="successPassport">
+                Meu passaporte
+              </a>
+            </div>
+          </div>
+
+          <!-- Estado de erro -->
+          <div class="error-state" id="visitError" hidden>
+            <h2>Não foi possível iniciar</h2>
+            <p></p>
+            <a class="btn btn-secondary" href="/">Voltar ao início</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════════════ -->
+      <!-- TELA 3: Estúdio Social (foto + card para redes sociais)       -->
+      <!-- ══════════════════════════════════════════════════════════════ -->
+      <section id="socialView" class="view" hidden>
+        <a class="back" id="backToSuccess" href="#">← Voltar</a>
+        <div class="social-heading">
+          <p class="eyebrow">ESTÚDIO SOCIAL</p>
+          <h1>Eu vivi essa ideia.</h1>
+          <p>Tire a foto no stand, escolha o formato e publique. A imagem é montada no seu aparelho e não é enviada ao servidor.</p>
+        </div>
+
+        <div class="social-layout">
+          <div class="social-preview">
+            <div class="format-tabs" id="formatTabs" role="group" aria-label="Formato do card">
+              <button class="format-tab active" data-format="feed">▣ Feed 1:1</button>
+              <button class="format-tab" data-format="story">▯ Stories / Reels 9:16</button>
+            </div>
+            <canvas id="socialCanvas" width="1080" height="1080" aria-label="Prévia do card social"></canvas>
+          </div>
+
+          <div class="social-tools">
+            <label class="photo-picker" for="socialPhoto">
+              📷 Tirar ou escolher a foto
+              <input id="socialPhoto" type="file" accept="image/*" capture="environment" />
+            </label>
+            <button class="text-button" id="removePhoto" hidden>Remover foto</button>
+
+            <p class="share-label">Publicar em:</p>
+            <div class="social-grid" id="socialGrid">
+              <button class="social-chip chip-instagram" data-network="instagram">
+                <span aria-hidden="true">📸</span> Instagram
+              </button>
+              <button class="social-chip chip-stories" data-network="instagram_stories">
+                <span aria-hidden="true">⚡</span> Stories
+              </button>
+              <button class="social-chip chip-tiktok" data-network="tiktok">
+                <span aria-hidden="true">🎵</span> TikTok
+              </button>
+              <button class="social-chip chip-whatsapp" data-network="whatsapp">
+                <span aria-hidden="true">💬</span> WhatsApp
+              </button>
+              <button class="social-chip chip-facebook" data-network="facebook">
+                <span aria-hidden="true">👍</span> Facebook
+              </button>
+              <button class="social-chip chip-x" data-network="x">
+                <span aria-hidden="true">✕</span> X
+              </button>
+              <button class="social-chip chip-linkedin" data-network="linkedin">
+                <span aria-hidden="true">in</span> LinkedIn
+              </button>
+              <button class="social-chip chip-telegram" data-network="telegram">
+                <span aria-hidden="true">✈</span> Telegram
+              </button>
+            </div>
+
+            <div class="social-actions">
+              <button class="btn btn-primary btn-full" id="shareCard">Compartilhar (abre o app)</button>
+              <button class="btn btn-secondary btn-full" id="downloadCard">Baixar imagem</button>
+              <button class="text-button" id="copyCaption">Copiar legenda e hashtags</button>
+            </div>
+
+            <!-- Passo a passo mostrado para Instagram e TikTok -->
+            <div class="post-steps" id="postSteps" hidden>
+              <p class="step">COMO PUBLICAR</p>
+              <ol id="postStepsList"></ol>
+              <button class="text-button" id="closePostSteps">Entendi</button>
+            </div>
+
+            <form class="support-form" id="supportForm">
+              <p class="step">MURAL DA FEIRA</p>
+              <h2>Deixe seu apoio ao projeto</h2>
+              <textarea id="supportMessage" minlength="8" maxlength="180" placeholder="Conte o que mais chamou sua atenção..." required></textarea>
+              <label class="consent">
+                <input id="supportConsent" type="checkbox" required />
+                <span>Autorizo a publicação desta mensagem, nota e projeto no mural público. Minha foto não será enviada.</span>
+              </label>
+              <button class="btn btn-dark btn-full" type="submit">Enviar para aprovação</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════════════ -->
+      <!-- TELA 3B: Passaporte do Visitante                              -->
+      <!-- ══════════════════════════════════════════════════════════════ -->
+      <section id="passportView" class="view" hidden>
+        <a class="back" href="/">← Início</a>
+        <div class="passport-heading">
+          <p class="eyebrow">MEU PASSAPORTE DA FEIRA</p>
+          <h1 id="passportGreeting">Sua jornada</h1>
+          <p>Cada stand avaliado carimba o seu passaporte.</p>
+        </div>
+
+        <div class="passport-progress">
+          <div class="progress-track"><div class="progress-fill" id="passportFill"></div></div>
+          <strong id="passportCount">0 / 0</strong>
+        </div>
+
+        <div class="passport-actions">
+          <button class="btn btn-primary" id="passportScan">⛶ Escanear próximo stand</button>
+          <button class="text-button" id="passportRefresh">Atualizar</button>
+        </div>
+
+        <div class="passport-grid" id="passportGrid"></div>
+        <p class="empty" id="passportEmpty" hidden>Nenhum stand cadastrado ainda.</p>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════════════ -->
+      <!-- TELA 4: Área do Expositor (Cadastro / Login)                  -->
+      <!-- ══════════════════════════════════════════════════════════════ -->
+      <section id="exhibitorView" class="view" hidden>
+        <div class="exhibitor-header">
+          <div>
+            <p class="eyebrow">ÁREA DO EXPOSITOR</p>
+            <h1>Seu projeto em números.</h1>
+          </div>
+          <a class="back" href="/">← Início</a>
+        </div>
+
+        <div class="auth-layout" id="authLayout">
+          <!-- Formulário de acesso com código -->
+          <form class="form-panel" id="accessForm">
+            <p class="step">JÁ TENHO UM STAND</p>
+            <h2>Acessar resultados</h2>
+            <label for="standSelect">Stand</label>
+            <select id="standSelect" required>
+              <option value="">Selecione seu stand</option>
+            </select>
+            <label for="accessCode">Código secreto</label>
+            <input id="accessCode" inputmode="text" maxlength="6" placeholder="XXXXXX" autocomplete="off" required />
+            <button class="btn btn-primary btn-full" type="submit">Entrar no painel</button>
+            <button type="button" class="text-button" id="forgotCodeLink">Esqueci meu código</button>
+          </form>
+
+          <!-- Formulário de cadastro de novo stand -->
+          <form class="form-panel accent-panel" id="createForm">
+            <p class="step">PRIMEIRO ACESSO</p>
+            <h2>Cadastrar meu stand</h2>
+
+            <label for="standName">Nome do projeto / grupo</label>
+            <input id="standName" maxlength="100" placeholder="Ex.: Horta Inteligente" required autocomplete="off" />
+
+            <label for="courseSelect">Curso</label>
+            <select id="courseSelect">
+              <option value="webdesign">🎨 Web Design</option>
+              <option value="programacao">💻 Programação</option>
+              <option value="audiovisual">🎬 Audiovisual</option>
+              <option value="ppt">📋 Prep. para o Trabalho</option>
+            </select>
+
+            <button class="btn btn-dark btn-full" type="submit">Criar stand →</button>
+          </form>
+        </div>
+
+        <!-- Recuperação do código de acesso -->
+        <div class="form-panel recovery-panel" id="recoveryPanel" hidden>
+          <p class="step">RECUPERAÇÃO DE ACESSO</p>
+          <h2>Perdi o código do meu stand</h2>
+          <p class="recovery-note">
+            Por segurança, o código fica guardado criptografado e não pode ser
+            mostrado de novo. A organização gera um código novo para você.
+          </p>
+
+          <label for="recoveryStand">Qual é o seu stand?</label>
+          <select id="recoveryStand">
+            <option value="">Selecione seu stand</option>
+          </select>
+
+          <label for="recoveryName">Seu nome</label>
+          <input id="recoveryName" maxlength="80" placeholder="Ex.: Ana Souza" autocomplete="name" />
+
+          <button class="btn btn-dark btn-full" id="sendRecovery">Solicitar novo código</button>
+          <button type="button" class="text-button" id="cancelRecovery">Voltar ao login</button>
+
+          <div class="recovery-sent" id="recoverySent" hidden>
+            <strong>Pedido registrado ✓</strong>
+            <p>Procure a mesa da organização da feira. Eles liberam seu código novo em segundos, no painel administrativo.</p>
+          </div>
+        </div>
+
+        <!-- Revelação do código de acesso (exibido uma única vez) -->
+        <div class="code-reveal" id="codeReveal" hidden>
+          <p>ANOTE SEU CÓDIGO SECRETO — ELE NÃO SERÁ EXIBIDO NOVAMENTE</p>
+          <strong id="newAccessCode"></strong>
+          <small>Guarde este código. Você precisará dele para acessar seus resultados e moderar o mural.</small>
+          <a id="openNewDashboard" class="btn btn-dark">Abrir meu painel →</a>
+        </div>
+
+        <div id="formMessage" class="form-message" hidden></div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════════════ -->
+      <!-- TELA 5: Dashboard do Expositor                                 -->
+      <!-- ══════════════════════════════════════════════════════════════ -->
+      <section id="dashboardView" class="view" hidden>
+        <div class="dashboard-heading">
+          <div>
+            <p class="eyebrow" id="dashboardCourse"></p>
+            <h1 id="dashboardName">Meu stand</h1>
+          </div>
+          <a class="back" href="/expositor">← Sair</a>
+        </div>
+
+        <!-- Métricas principais -->
+        <div class="metrics" id="metricsGrid">
+          <article>
+            <small>VISITANTES</small>
+            <strong id="metricVisitors">0</strong>
+            <span>pessoas</span>
+          </article>
+          <article>
+            <small>NOTA MÉDIA</small>
+            <strong id="metricRating">—</strong>
+            <span>de 5 estrelas</span>
+          </article>
+          <article>
+            <small>TEMPO MÉDIO</small>
+            <strong id="metricAverageTime">—</strong>
+            <span>por visitante</span>
+          </article>
+          <article>
+            <small>TEMPO TOTAL</small>
+            <strong id="metricTotalTime">—</strong>
+            <span>de interação</span>
+          </article>
+          <article>
+            <small>COMPARTILHAMENTOS</small>
+            <strong id="metricShares">0</strong>
+            <span>iniciados</span>
+          </article>
+          <article>
+            <small>APOIOS NO MURAL</small>
+            <strong id="metricSupports">0</strong>
+            <span>publicados</span>
+          </article>
+        </div>
+
+        <!-- Dashboard grid: distribuição + QR Code -->
+        <div class="dashboard-grid">
+          <article class="data-panel">
+            <div class="section-heading">
+              <h2>Distribuição das notas</h2>
+              <button class="icon-button" id="refreshDashboard" title="Atualizar" aria-label="Atualizar resultados">↻</button>
+            </div>
+            <div id="ratingDistribution"></div>
+          </article>
+          <article class="data-panel qr-panel">
+            <h2>QR Code do stand</h2>
+            <img id="standQr" alt="QR Code para acesso ao stand" />
+            <a class="btn btn-secondary btn-full" id="downloadQr" download="qr-code-stand.png">Baixar QR Code</a>
+          </article>
+        </div>
+
+        <!-- Breakdown por perfil de visitante -->
+        <article class="data-panel profile-breakdown">
+          <h2>Visitantes por perfil</h2>
+          <div id="profileBreakdown" class="profile-bars"></div>
+        </article>
+
+        <!-- Alcance nas redes sociais -->
+        <article class="data-panel">
+          <h2>Compartilhamentos por rede</h2>
+          <div id="networkBreakdown" class="profile-bars"></div>
+        </article>
+
+        <!-- Visitas recentes -->
+        <article class="data-panel">
+          <div class="section-heading">
+            <h2>Visitas recentes</h2>
+            <a class="text-button" id="exportCsv">Baixar CSV</a>
+          </div>
+          <div id="recentVisits" class="recent-list"></div>
+        </article>
+
+        <!-- Moderação do mural -->
+        <article class="data-panel moderation-panel">
+          <div class="section-heading">
+            <div>
+              <p class="step">MODERAÇÃO</p>
+              <h2>Apoios aguardando aprovação</h2>
+            </div>
+            <b id="pendingCount">0</b>
+          </div>
+          <div id="pendingSupports" class="pending-list"></div>
+        </article>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════════════ -->
+      <!-- TELA 6: Admin Global                                          -->
+      <!-- ══════════════════════════════════════════════════════════════ -->
+      <section id="adminView" class="view" hidden>
+        <div class="admin-header">
+          <div>
+            <p class="eyebrow">PAINEL ADMINISTRATIVO</p>
+            <h1>Visão Geral da Feira</h1>
+          </div>
+          <a class="back" href="/">← Início</a>
+        </div>
+
+        <!-- Login do admin -->
+        <div id="adminLoginArea">
+          <form class="form-panel admin-login-panel" id="adminLoginForm">
+            <p class="step">ACESSO RESTRITO</p>
+            <h2>Entrar como administrador</h2>
+            <label for="adminPassword">Senha de administrador</label>
+            <input id="adminPassword" type="password" placeholder="••••••••" required autocomplete="current-password" />
+            <button class="btn btn-primary btn-full" type="submit">Acessar painel →</button>
+          </form>
+          <div id="adminLoginError" class="form-message" hidden></div>
+        </div>
+
+        <!-- Dashboard do admin (visível após login) -->
+        <div id="adminDashboardArea" hidden>
+          <!-- Métricas globais -->
+          <div class="metrics admin-metrics">
+            <article>
+              <small>STANDS CADASTRADOS</small>
+              <strong id="adminTotalStands">0</strong>
+              <span>projetos</span>
+            </article>
+            <article>
+              <small>TOTAL DE VISITANTES</small>
+              <strong id="adminTotalVisitors">0</strong>
+              <span>avaliações</span>
+            </article>
+            <article>
+              <small>NOTA GLOBAL</small>
+              <strong id="adminGlobalAvg">—</strong>
+              <span>média geral</span>
+            </article>
+            <article>
+              <small>CREDENCIADOS</small>
+              <strong id="adminCheckedIn">0</strong>
+              <span>cadastros únicos</span>
+            </article>
+            <article>
+              <small>COMPARTILHAMENTOS</small>
+              <strong id="adminTotalShares">0</strong>
+              <span>iniciados</span>
+            </article>
+            <article>
+              <small>APOIOS PUBLICADOS</small>
+              <strong id="adminTotalSupports">0</strong>
+              <span>no mural</span>
+            </article>
+          </div>
+
+          <div class="dashboard-grid">
+            <!-- Visitantes por perfil -->
+            <article class="data-panel">
+              <h2>Visitantes por perfil</h2>
+              <div id="adminProfileBreakdown" class="profile-bars"></div>
+              <h2 class="panel-subtitle">Alcance por rede social</h2>
+              <div id="adminNetworkBreakdown" class="profile-bars"></div>
+            </article>
+
+            <!-- Ações de exportação -->
+            <article class="data-panel">
+              <h2>Exportar e imprimir</h2>
+              <div class="export-actions">
+                <a class="btn btn-primary btn-full" id="adminExportCsv">📊 Baixar CSV de avaliações</a>
+                <a class="btn btn-secondary btn-full" id="adminExportVisitors">👥 Baixar CSV do credenciamento</a>
+                <a class="btn btn-secondary btn-full" id="adminExportSupports">💬 Baixar CSV do mural</a>
+                <a class="btn btn-dark btn-full" id="adminBackup">🛟 Backup completo (JSON)</a>
+                <button class="btn btn-dark btn-full" id="adminPrintQr">🖨️ Folha de QR Codes dos stands</button>
+                <a class="btn btn-primary btn-full" href="/relatorio" id="adminOpenReport">📈 Relatório da feira</a>
+                <button class="btn btn-secondary btn-full" id="adminRefresh">↻ Atualizar</button>
+              </div>
+            </article>
+          </div>
+
+          <!-- Recuperação de código dos expositores -->
+          <article class="data-panel moderation-panel">
+            <div class="section-heading">
+              <div>
+                <p class="step">SUPORTE AOS EXPOSITORES</p>
+                <h2>Pedidos de novo código</h2>
+              </div>
+              <b id="recoveryCount">0</b>
+            </div>
+            <div id="recoveryRequests" class="pending-list"></div>
+
+            <div class="manual-reset">
+              <label for="resetStandSelect">Gerar código para qualquer stand</label>
+              <div class="manual-reset-row">
+                <select id="resetStandSelect">
+                  <option value="">Selecione o stand</option>
+                </select>
+                <button class="btn btn-dark" id="manualResetBtn">Gerar novo código</button>
+              </div>
+              <div class="code-reveal code-reveal-inline" id="resetReveal" hidden>
+                <p>NOVO CÓDIGO — ANOTE E ENTREGUE AO GRUPO</p>
+                <strong id="resetCode"></strong>
+                <small id="resetStandName"></small>
+              </div>
+            </div>
+          </article>
+
+          <!-- Ranking de stands -->
+          <article class="data-panel">
+            <h2>🏆 Ranking dos Stands</h2>
+            <div id="adminLeaderboard" class="leaderboard-list"></div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════════════ -->
+      <!-- TELA 7: Relatório da Feira (imprimível)                        -->
+      <!-- ══════════════════════════════════════════════════════════════ -->
+      <section id="reportView" class="view" hidden>
+        <div class="report-header">
+          <div>
+            <p class="eyebrow">RELATÓRIO CONSOLIDADO</p>
+            <h1>1ª Feira Tech dos Jovens da Vocação</h1>
+            <small id="reportGeneratedAt"></small>
+          </div>
+          <div class="report-header-actions">
+            <button class="btn btn-primary" id="reportPrint">🖨️ Imprimir / PDF</button>
+            <a class="back" href="/admin">← Painel</a>
+          </div>
+        </div>
+
+        <!-- Login, quando o relatório é aberto direto pela URL -->
+        <form class="form-panel admin-login-panel" id="reportLoginForm">
+          <p class="step">ACESSO RESTRITO</p>
+          <h2>Senha de administrador</h2>
+          <input id="reportPassword" type="password" placeholder="••••••••" required autocomplete="current-password" />
+          <button class="btn btn-primary btn-full" type="submit">Abrir relatório →</button>
+          <p class="form-message" id="reportLoginError" hidden></p>
+        </form>
+
+        <div id="reportBody" hidden>
+          <div class="metrics report-metrics" id="reportMetrics"></div>
+
+          <article class="data-panel">
+            <h2>Satisfação geral</h2>
+            <div id="reportDistribution"></div>
+          </article>
+
+          <div class="dashboard-grid">
+            <article class="data-panel">
+              <h2>Desempenho por curso</h2>
+              <div id="reportByCourse" class="report-table"></div>
+            </article>
+            <article class="data-panel">
+              <h2>Público por perfil</h2>
+              <div id="reportByProfile" class="profile-bars"></div>
+            </article>
+          </div>
+
+          <article class="data-panel">
+            <h2>Movimento por horário</h2>
+            <div id="reportByHour" class="hour-chart"></div>
+          </article>
+
+          <div class="dashboard-grid">
+            <article class="data-panel">
+              <h2>Alcance nas redes sociais</h2>
+              <div id="reportNetworks" class="profile-bars"></div>
+            </article>
+            <article class="data-panel">
+              <h2>Pontos de atenção</h2>
+              <div id="reportAlerts" class="report-alerts"></div>
+            </article>
+          </div>
+
+          <article class="data-panel">
+            <h2>Ranking completo dos projetos</h2>
+            <div id="reportRanking" class="report-table"></div>
+          </article>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- Leitor de QR Code embutido (não precisa sair do app)            -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <div class="scanner-overlay" id="scannerOverlay" hidden>
+      <div class="scanner-panel">
+        <div class="scanner-top">
+          <strong>Aponte para o QR Code do stand</strong>
+          <button class="scanner-close" id="scannerClose" aria-label="Fechar leitor">✕</button>
+        </div>
+        <div class="scanner-stage">
+          <video id="scannerVideo" playsinline muted></video>
+          <div class="scanner-frame"></div>
+        </div>
+        <p class="scanner-status" id="scannerStatus">Iniciando a câmera...</p>
+        <div class="scanner-fallback" id="scannerFallback" hidden>
+          <p>Se a câmera não abrir, use o aplicativo de câmera do celular para ler o QR Code — ou escolha o stand na lista.</p>
+          <a class="btn btn-secondary btn-full" href="/">Ver lista de stands</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast de notificação -->
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="/static/script.js"></script>
+  </body>
+</html>
