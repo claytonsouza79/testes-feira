@@ -315,63 +315,6 @@ class FeiraTechSmokeTest(unittest.TestCase):
             "/api/admin/recovery/requests?password=admin@feira2025"
         ).get_json(), [])
 
-    def test_admin_exclui_stand_e_dados_ligados(self):
-        senha = os.environ["ADMIN_PASSWORD"]
-        visitor_key = "visitante_exclusao_1234567890"
-        self.client.post("/api/visitors/profile", json={
-            "visitor_key": visitor_key,
-            "profile_type": "visitante_externo",
-            "name": "Visitante Exclusao",
-        })
-        stand = self.client.post("/api/stands", json={
-            "name": "Stand Para Excluir", "course": "webdesign",
-        }).get_json()["stand"]
-        outro = self.client.post("/api/stands", json={
-            "name": "Stand Que Fica", "course": "webdesign",
-        }).get_json()["stand"]
-
-        visita = self.client.post(
-            f"/api/stands/{stand['id']}/visits/start", json={"visitor_key": visitor_key}
-        ).get_json()
-        self.client.post(
-            f"/api/stands/{stand['id']}/visits/{visita['visit_id']}/finish",
-            json={"visitor_key": visitor_key, "stars": 5},
-        )
-
-        # Senha errada não exclui nada
-        negado = self.client.post(
-            f"/api/admin/stands/{stand['id']}/delete", json={"password": "errada"}
-        )
-        self.assertEqual(negado.status_code, 401)
-        self.assertEqual(self.client.get(f"/api/stands/{stand['id']}").status_code, 200)
-
-        # Stand inexistente
-        self.assertEqual(
-            self.client.post(
-                "/api/admin/stands/nao-existe/delete", json={"password": senha}
-            ).status_code,
-            404,
-        )
-
-        # Exclusão de verdade
-        ok = self.client.post(
-            f"/api/admin/stands/{stand['id']}/delete", json={"password": senha}
-        )
-        self.assertEqual(ok.status_code, 200)
-        self.assertEqual(ok.get_json()["deleted_visits"], 1)
-        self.assertEqual(self.client.get(f"/api/stands/{stand['id']}").status_code, 404)
-        self.assertEqual(self.client.get(f"/api/stands/{outro['id']}").status_code, 200)
-
-        painel = self.client.get(f"/api/admin/dashboard?password={senha}").get_json()
-        self.assertEqual(painel["total_stands"], 1)
-        self.assertEqual(painel["total_visitors"], 0)
-
-        # O nome do grupo fica livre para um novo cadastro
-        recriado = self.client.post("/api/stands", json={
-            "name": "Stand Para Excluir", "course": "webdesign",
-        })
-        self.assertEqual(recriado.status_code, 201)
-
     def test_relatorio_consolidado(self):
         """O relatório agrega avaliações, horários, cursos e alcance."""
         visitor_key = "visitante_relatorio_123456"

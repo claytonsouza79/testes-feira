@@ -547,20 +547,6 @@ def admin_reset_code(stand_id):
     return jsonify(result), 201
 
 
-@app.post("/api/admin/stands/<stand_id>/delete")
-def admin_delete_stand(stand_id):
-    """Exclui o stand e tudo que estiver ligado a ele (irreversível)."""
-    data = request.get_json(silent=True) or {}
-    result, error = store.admin_delete_stand(str(data.get("password") or ""), stand_id)
-
-    if error == "unauthorized":
-        return jsonify({"error": "Senha de administrador inválida."}), 401
-    if error == "not_found":
-        return jsonify({"error": "Stand não encontrado."}), 404
-
-    return jsonify(result)
-
-
 @app.get("/api/admin/report")
 def admin_report():
     report = store.admin_report(request.args.get("password", ""))

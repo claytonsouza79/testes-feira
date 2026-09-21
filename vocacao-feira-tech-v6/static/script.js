@@ -1500,7 +1500,6 @@
     // Recuperação de código dos expositores
     loadRecoveryRequests(password);
     fillResetSelect(report.leaderboard || []);
-    renderManageStands(report.leaderboard || [], password);
     $('manualResetBtn').onclick = () => {
       const standId = $('resetStandSelect').value;
       if (!standId) { toast('Selecione o stand.'); return; }
@@ -1514,68 +1513,6 @@
       renderAdminDashboard(fresh, password);
       toast('Dados atualizados!');
     };
-  }
-
-  /** Lista os stands cadastrados com o botão de excluir. */
-  function renderManageStands(stands, password) {
-    const list = $('manageStandsList');
-    list.replaceChildren();
-    $('manageStandsCount').textContent = stands.length;
-
-    if (!stands.length) {
-      list.innerHTML = '<p class="empty-dark">Nenhum stand cadastrado.</p>';
-      return;
-    }
-
-    [...stands]
-      .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'))
-      .forEach((stand) => {
-        const row = document.createElement('div');
-        row.className = 'pending-row';
-
-        const info = document.createElement('div');
-        const titulo = document.createElement('p');
-        titulo.textContent = stand.name;
-        const meta = document.createElement('small');
-        meta.textContent =
-          `${courseLabels[stand.course] || stand.course} · ${stand.visitors} visita(s) · ${stand.total_ratings} nota(s)`;
-        info.append(titulo, meta);
-
-        const actions = document.createElement('div');
-        actions.className = 'moderation-actions';
-        const btn = document.createElement('button');
-        btn.className = 'btn btn-danger';
-        btn.textContent = 'Excluir';
-        btn.onclick = () => deleteStand(stand, password, btn);
-        actions.appendChild(btn);
-
-        row.append(info, actions);
-        list.appendChild(row);
-      });
-  }
-
-  /** Exclui o stand (após confirmação) e recarrega o painel. */
-  async function deleteStand(stand, password, btn) {
-    const confirmado = window.confirm(
-      `Excluir o stand "${stand.name}"?\n\n` +
-      `Serão apagadas ${stand.visitors} visita(s) e ${stand.total_ratings} nota(s), ` +
-      'além das mensagens do mural desse stand.\n' +
-      'O QR Code impresso dele deixará de funcionar. Esta ação não pode ser desfeita.'
-    );
-    if (!confirmado) return;
-
-    btn.disabled = true;
-    try {
-      await post(`/api/admin/stands/${encodeURIComponent(stand.id)}/delete`, { password });
-      const fresh = await apiFetch(
-        `/api/admin/dashboard?password=${encodeURIComponent(password)}`
-      );
-      renderAdminDashboard(fresh, password);
-      toast(`Stand "${stand.name}" excluído.`);
-    } catch (err) {
-      btn.disabled = false;
-      toast(err.message);
-    }
   }
 
   function fillResetSelect(stands) {

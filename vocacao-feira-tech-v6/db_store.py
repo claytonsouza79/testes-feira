@@ -521,49 +521,6 @@ def admin_reset_stand_code(
         return {"stand": _public_stand(_get_stand(c, stand_id)), "access_code": novo_codigo}, None
 
 
-def admin_delete_stand(password: str, stand_id: str) -> tuple[dict | None, str | None]:
-    """Exclui um stand (somente o organizador).
-
-    As visitas, avaliações, mensagens do mural e pedidos de código do stand
-    saem junto (ON DELETE CASCADE). Os visitantes credenciados são mantidos;
-    apenas o vínculo com o stand excluído é removido do cadastro deles.
-    """
-    if not _verify_admin(password):
-        return None, "unauthorized"
-
-    with _write() as c:
-        stand = _get_stand(c, stand_id)
-        if not stand:
-            return None, "not_found"
-
-        removido = _public_stand(stand)
-        visitas = c.execute(
-            "SELECT COUNT(*) FROM visits WHERE stand_id = ?", (stand_id,)
-        ).fetchone()[0]
-        engajamentos = c.execute(
-            "SELECT COUNT(*) FROM engagements WHERE stand_id = ?", (stand_id,)
-        ).fetchone()[0]
-
-        c.execute("DELETE FROM stands WHERE id = ?", (stand_id,))
-
-        # Tira o stand da lista "meus stands" dos alunos que o marcaram
-        for v in c.execute(
-            "SELECT visitor_hash, own_stand_ids FROM visitors WHERE own_stand_ids LIKE ?",
-            (f"%{stand_id}%",),
-        ).fetchall():
-            restantes = [sid for sid in _json_list(v["own_stand_ids"]) if sid != stand_id]
-            c.execute(
-                "UPDATE visitors SET own_stand_ids = ? WHERE visitor_hash = ?",
-                (json.dumps(restantes), v["visitor_hash"]),
-            )
-
-        return {
-            "stand": removido,
-            "deleted_visits": visitas,
-            "deleted_engagements": engajamentos,
-        }, None
-
-
 def list_code_requests(password: str) -> list[dict] | None:
     if not _verify_admin(password):
         return None

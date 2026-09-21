@@ -125,7 +125,6 @@ body {
 .btn-secondary { background: var(--soft); color: var(--ink); }
 .btn-dark { background: var(--navy); color: var(--paper); }
 .btn-lime { background: var(--lime); color: var(--ink); }
-.btn-danger { background: var(--danger); color: #fff; }
 .text-button, .icon-button {
   border: 0;
   background: transparent;
@@ -1148,7 +1147,6 @@ input:focus, select:focus {
   align-items: center;
 }
 .manual-reset-row select { flex: 1; min-width: 180px; }
-.manage-hint { margin: 0 0 8px; font-size: .82rem; opacity: .8; }
 .code-reveal-inline { margin-top: 16px; padding: 20px; }
 .code-reveal-inline strong { font-size: 2.4rem; }
 
