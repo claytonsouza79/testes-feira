@@ -1,0 +1,28 @@
+# Blueprint do Render.com — cria o serviço já com o disco persistente do SQLite.
+# Uso: Render > New > Blueprint > aponte para o repositório.
+# ATENÇÃO: disco persistente exige plano PAGO (Starter em diante). No plano
+# gratuito o SQLite é apagado a cada reinício.
+services:
+  - type: web
+    name: feira-tech-vocacao
+    runtime: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --workers 2 --threads 4 --timeout 60 --bind 0.0.0.0:$PORT --access-logfile -
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: DATA_PATH
+        value: /var/data/feira_tech.db
+      - key: ADMIN_PASSWORD
+        sync: false            # o Render pergunta o valor no primeiro deploy
+      - key: SECRET_KEY
+        generateValue: true
+      # Endereço público usado nos QR Codes (recomendado: domínio próprio).
+      # - key: PUBLIC_URL
+      #   value: https://feira.vocacao.org.br
+    disk:
+      name: feira-data
+      mountPath: /var/data
+      sizeGB: 1
